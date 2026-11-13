@@ -1,8 +1,13 @@
+#ifndef FAYAWO_WEB
 #include "pch.h"
+#endif
 #include "cartransmission.h"
+#ifndef FAYAWO_WEB
 #include "Def_Str.h"
+#endif
 
 
+#ifndef FAYAWO_WEB
 void CARTRANSMISSION::DebugPrint(std::ostream & out)
 {
 	out << "---Transmission---" << std::endl;
@@ -10,6 +15,7 @@ void CARTRANSMISSION::DebugPrint(std::ostream & out)
 	out << "CrankRPM " << fToStr(crankshaft_rpm, 0,5) << std::endl;
 	out << "DriveRPM " << fToStr(driveshaft_rpm, 0,5) << std::endl;
 }
+#endif
 
 ///ratio is: driveshaft speed / crankshaft speed
 void CARTRANSMISSION::SetGearRatio(int gear, Dbl ratio)
