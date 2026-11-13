@@ -124,5 +124,60 @@ int fayawo_car_config_exists(const char* key) {
     std::string value;
     return fayawo_original_car.GetParam(std::string(key), value) ? 1 : 0;
 }
-int fayawo_physics_abi_version() { return 5; }
+// Bind several original C++ systems to the selected *real* .car configuration.
+// These are subsystem calculations, not the full CARDYNAMICS vehicle simulation.
+double fayawo_selected_gearbox_torque(int gear, double clutch_torque) {
+    if (gear < 1 || gear > 8) return 0.0;
+    CARTRANSMISSION transmission;
+    for (int i=1; i<=gear; ++i) {
+        float ratio = 0;
+        if (!fayawo_original_car.GetParam("transmission.gear-ratio-" + std::to_string(i), ratio))
+            return 0.0;
+        transmission.SetGearRatio(i, ratio);
+    }
+    transmission.Shift(gear);
+    return transmission.GetTorque(clutch_torque);
+}
+double fayawo_selected_brake_torque(double pedal) {
+    CARBRAKE brake;
+    float value;
+    if (fayawo_original_car.GetParam("brakes-front.friction", value)) brake.SetFriction(value);
+    if (fayawo_original_car.GetParam("brakes-front.max-pressure", value)) brake.SetMaxPressure(value);
+    if (fayawo_original_car.GetParam("brakes-front.bias", value)) brake.SetBias(value);
+    if (fayawo_original_car.GetParam("brakes-front.radius", value)) brake.SetRadius(value);
+    if (fayawo_original_car.GetParam("brakes-front.area", value)) brake.SetArea(value);
+    brake.SetBrakeFactor(std::clamp(pedal,0.0,1.0));
+    return brake.GetTorque();
+}
+double fayawo_selected_suspension_force(double compression, double vertical_speed) {
+    CARSUSPENSION suspension;
+    float value;
+    if (fayawo_original_car.GetParam("suspension-front.spring-constant",value)) suspension.SetSpringConstant(value);
+    if (fayawo_original_car.GetParam("suspension-front.travel",value)) suspension.SetTravel(value);
+    if (fayawo_original_car.GetParam("suspension-front.bounce",value)) suspension.SetBounce(value);
+    if (fayawo_original_car.GetParam("suspension-front.rebound",value)) suspension.SetRebound(value);
+    return suspension.GetForce(std::clamp(compression,0.0,suspension.GetTravel()),vertical_speed);
+}
+double fayawo_selected_engine_torque(double throttle,double rpm) {
+    std::vector<std::pair<double,double>> curve;
+    fayawo_original_car.GetPoints("engine","torque-curve-",curve);
+    if (curve.size()<2) return 0.0;
+    CARENGINE engine;
+    float value;
+    if (fayawo_original_car.GetParam("engine.rpm-limit",value)) engine.SetRpmMax(value);
+    if (fayawo_original_car.GetParam("engine.start-rpm",value)) engine.SetStartRPM(value);
+    if (fayawo_original_car.GetParam("engine.stall-rpm",value)) engine.SetStallRPM(value);
+    double max_power_rpm = curve.front().first;
+    double max_power = 0.0;
+    for(const auto& p:curve) {
+       if(p.first*p.second>max_power){max_power=p.first*p.second;max_power_rpm=p.first;}
+    }
+    engine.SetTorqueCurve(max_power_rpm,curve);
+    engine.StartEngine();
+    engine.SetAngularVelocity(std::max(0.0,rpm)*PI_d/30.0);
+    engine.SetThrottle(std::clamp(throttle,0.0,1.0));
+    engine.ComputeForces();
+    return engine.GetTorque();
+}
+int fayawo_physics_abi_version() { return 6; }
 }
