@@ -41,6 +41,12 @@ The `src/vdrift/cartire.cpp` Pacejka calculations now join the browser WebAssemb
 
 The browser build also copies `web/tire-plot.js` for interactive diagnostic curves. This script only draws samples obtained by calling the compiled C++ functions.
 
+## Bullet world proof of integration
+
+`web/bullet_probe.cpp` creates a Bullet C++ dynamics world, static ground and a 950 kg box rigid body, then steps gravity and collisions on a fixed timestep. This compiles against Emscripten's Bullet port (`-sUSE_BULLET=1`) into `site/bullet.js` and `site/bullet.wasm`. The browser diagnostic exposes a simulated drop height.
+
+This is deliberately an isolated integration probe. **Fayawo's own `CARDYNAMICS` vehicle chassis, wheel contacts, tyres and terrain are not yet wired to Bullet**; it is not a playable stage. The native Bullet physics dependency is compiled rather than reimplemented in JS.
+
 ## Important next milestones
 1. Compile the full Bullet-coupled `CARDYNAMICS` and surrounding original simulation as WebAssembly, replacing Ogre-bound data types at the boundary.
 2. Make existing asset paths and configuration portable; add original cars, tire configs and track assets to a streaming/preloaded filesystem.
