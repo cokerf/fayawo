@@ -1,6 +1,9 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 extern "C" double fayawo_brake_torque(double,double,double);
 extern "C" double fayawo_aero_drag(double,double,double);
@@ -14,12 +17,15 @@ extern "C" double fayawo_wheel_rolling_resistance(double,double);
 extern "C" double fayawo_wheel_inertia();
 extern "C" double fayawo_suspension_force(double,double);
 extern "C" double fayawo_suspension_step(double,double);
+extern "C" int fayawo_car_config_load(const char*);
+extern "C" double fayawo_car_config_number(const char*,double);
+extern "C" int fayawo_car_config_exists(const char*);
 
 static bool near(double a, double b, double tol=1e-6) {
   return std::abs(a-b)<tol;
 }
 int main() {
-    assert(fayawo_physics_abi_version()==4);
+    assert(fayawo_physics_abi_version()==5);
     assert(near(fayawo_vector_length(3,4,0),5));
     assert(near(fayawo_brake_torque(0,0,0),0));
     assert(near(fayawo_brake_torque(1,0,0),3066));
@@ -41,5 +47,15 @@ int main() {
     assert(near(fayawo_suspension_step(0.01,0),0));
     assert(fayawo_engine_torque(1,4000)>0);
     assert(std::isfinite(fayawo_engine_torque(0.5,2500)));
-    std::cout << "Original VDrift engine, wheel, brakes, aero, clutch, gearbox and math smoke tests passed\n";
+    std::ifstream original("data/carsim/normal/cars/ES.car");
+    assert(original.good());
+    std::ostringstream buffer;
+    buffer << original.rdbuf();
+    assert(fayawo_car_config_load(buffer.str().c_str()) == 1);
+    assert(fayawo_car_config_exists("engine.rpm-limit") == 1);
+    assert(near(fayawo_car_config_number("engine.rpm-limit",0),6600));
+    assert(near(fayawo_car_config_number("transmission.gear-ratio-1",0),2.909,1e-4));
+    assert(near(fayawo_car_config_number("suspension-front.travel",0),0.32,1e-4));
+    assert(near(fayawo_car_config_number("missing.parameter",27),27));
+    std::cout << "Original VDrift configs, suspension, engine, wheel and driveline smoke tests passed\n";
 }
