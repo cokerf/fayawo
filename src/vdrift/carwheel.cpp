@@ -1,8 +1,13 @@
+#ifndef FAYAWO_WEB
 #include "pch.h"
+#endif
 #include "carwheel.h"
+#ifndef FAYAWO_WEB
 #include "Def_Str.h"
+#endif
 
 
+#ifndef FAYAWO_WEB
 void CARWHEEL::DebugPrint(std::ostream & out)
 {
 	//out << "---Wheel---" << std::endl;
@@ -15,6 +20,7 @@ void CARWHEEL::DebugPrint(std::ostream & out)
 	out << "Slide|  " << fToStr(slips.slide, 2,5) << std::endl;
 	out << "SlipA- " << fToStr(slips.slip, 2,6) << std::endl;
 }
+#endif
 
 void CARWHEEL::SetInertia(Dbl new_inertia)
 {
