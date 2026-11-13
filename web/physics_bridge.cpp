@@ -5,6 +5,7 @@
 #include "mathvector.h"
 #include "carclutch.h"
 #include "cartransmission.h"
+#include "cardifferential.h"
 #include "carengine.h"
 #include "carwheel.h"
 #include "carsuspension.h"
@@ -180,7 +181,28 @@ double fayawo_selected_engine_torque(double throttle,double rpm) {
     engine.ComputeForces();
     return engine.GetTorque();
 }
-int fayawo_physics_abi_version() { return 7; }
+// Original CARDIFFERENTIAL limited-slip torque allocation.
+// The selected original .car file provides final-drive and anti-slip settings.
+double fayawo_selected_differential_side(int side,double driveshaft_torque,
+                                        double left_wheel_speed,double right_wheel_speed) {
+    if((side!=0 && side!=1) || !std::isfinite(driveshaft_torque)
+       || !std::isfinite(left_wheel_speed) || !std::isfinite(right_wheel_speed)) return 0.0;
+    CARDIFFERENTIAL diff;
+    float final_drive=4.1f;
+    float anti_slip=600.0f,anti_slip_torque=0.0f,decel_factor=0.0f;
+    fayawo_original_car.GetParam("differential.final-drive",final_drive);
+    fayawo_original_car.GetParam("differential.anti-slip",anti_slip);
+    fayawo_original_car.GetParam("differential.anti-slip-torque",anti_slip_torque);
+    fayawo_original_car.GetParam("differential.anti-slip-torque-decel-factor",decel_factor);
+    diff.SetFinalDrive(final_drive);
+    diff.SetAntiSlip(std::max(0.0,double(anti_slip)),
+                     std::max(0.0,double(anti_slip_torque)),
+                     std::clamp(double(decel_factor),0.0,1.0));
+    diff.CalcSpeed(left_wheel_speed,right_wheel_speed);
+    diff.ComputeWheelTorques(driveshaft_torque);
+    return side==0 ? diff.GetSide1Torque() : diff.GetSide2Torque();
+}
+int fayawo_physics_abi_version() { return 8; }
 }
 
 // Browser tyre milestone: same CARTIRE Pacejka coefficients and equations as the game.
