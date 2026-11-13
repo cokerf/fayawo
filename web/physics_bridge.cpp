@@ -8,6 +8,11 @@
 #include "carengine.h"
 #include "carwheel.h"
 #include "carsuspension.h"
+#include "configfile.h"
+#include <sstream>
+#include <cstring>
+
+static CONFIGFILE fayawo_original_car;
 #include <cmath>
 #include <algorithm>
 
@@ -100,5 +105,24 @@ double fayawo_suspension_step(double dt, double displacement) {
     return suspension.Update(dt, displacement);
 }
 
-int fayawo_physics_abi_version() { return 4; }
+// Parse the ORIGINAL .car format with the ORIGINAL VDrift CONFIGFILE parser.
+// JavaScript fetches an actual .car asset and passes its text into the C++ parser.
+int fayawo_car_config_load(const char* text) {
+    if (!text || !*text) return 0;
+    std::istringstream in(text);
+    fayawo_original_car.Clear();
+    return fayawo_original_car.Load(in) ? 1 : 0;
+}
+double fayawo_car_config_number(const char* key, double fallback) {
+    if (!key || !*key) return fallback;
+    float result = 0.0f;
+    return fayawo_original_car.GetParam(std::string(key), result)
+        ? static_cast<double>(result) : fallback;
+}
+int fayawo_car_config_exists(const char* key) {
+    if (!key || !*key) return 0;
+    std::string value;
+    return fayawo_original_car.GetParam(std::string(key), value) ? 1 : 0;
+}
+int fayawo_physics_abi_version() { return 5; }
 }
