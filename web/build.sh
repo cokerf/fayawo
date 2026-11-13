@@ -8,6 +8,7 @@ fi
 mkdir -p site
 cp web/index.html site/index.html
 cp web/tire-plot.js site/tire-plot.js
+cp web/rigidbody-ui.js site/rigidbody-ui.js
 em++ -std=c++17 -O2 -DFAYAWO_WEB \
   -I src/vdrift \
   web/physics_bridge.cpp \
