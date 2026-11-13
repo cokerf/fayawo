@@ -11,6 +11,7 @@
 #include <cmath>
 #include <memory>
 #include <sstream>
+#include <cstdio>
 #include <string>
 
 namespace {
