@@ -1,4 +1,8 @@
+#ifndef FAYAWO_WEB
 #include "pch.h"
+#else
+#include <algorithm>
+#endif
 #include "cartire.h"
 #include "cardefs.h"
 //#include "Def_Str.h"
