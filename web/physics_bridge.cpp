@@ -9,6 +9,7 @@
 #include "carwheel.h"
 #include "carsuspension.h"
 #include "configfile.h"
+#include "cartire.h"
 #include <sstream>
 #include <cstring>
 
@@ -179,5 +180,55 @@ double fayawo_selected_engine_torque(double throttle,double rpm) {
     engine.ComputeForces();
     return engine.GetTorque();
 }
-int fayawo_physics_abi_version() { return 6; }
+int fayawo_physics_abi_version() { return 7; }
+}
+
+// Browser tyre milestone: same CARTIRE Pacejka coefficients and equations as the game.
+// The original .tire format is loaded by the original CONFIGFILE parser.
+static CONFIGFILE fayawo_original_tire;
+static CARTIRE fayawo_tire;
+
+static bool load_original_tire_values(CARTIRE& tire, const CONFIGFILE& source) {
+    float value;
+    for (int i=0;i<=10;++i) {
+        if (!source.GetParam("params.b"+std::to_string(i),value)) return false;
+        tire.longitudinal[i]=value;
+    }
+    for (int i=0;i<=10;++i) {
+        if (!source.GetParam("params.a"+std::to_string(i),value)) return false;
+        tire.lateral[i]=value;
+    }
+    const char* extra[]={"a111","a112","a12","a13"};
+    for (int i=0;i<4;++i) {
+        if (!source.GetParam(std::string("params.")+extra[i],value)) return false;
+        tire.lateral[11+i]=value;
+    }
+    for (int i=0;i<18;++i) {
+        if (!source.GetParam("params.c"+std::to_string(i),value)) return false;
+        tire.aligning[i]=value;
+    }
+    return true;
+}
+
+extern "C" {
+int fayawo_tire_config_load(const char* text) {
+    if (!text || !*text) return 0;
+    std::istringstream input(text);
+    fayawo_original_tire.Clear();
+    if (!fayawo_original_tire.Load(input)) return 0;
+    CARTIRE tire;
+    if (!load_original_tire_values(tire,fayawo_original_tire)) return 0;
+    fayawo_tire=tire;
+    return 1;
+}
+double fayawo_tire_longitudinal_force(double slip_ratio,double normal_force_newtons) {
+    if (normal_force_newtons<=0) return 0;
+    Dbl peak=0;
+    return fayawo_tire.Pacejka_Fx(slip_ratio,normal_force_newtons*0.001,1.0,peak);
+}
+double fayawo_tire_lateral_force(double slip_angle_degrees,double normal_force_newtons) {
+    if (normal_force_newtons<=0) return 0;
+    Dbl peak=0;
+    return fayawo_tire.Pacejka_Fy(slip_angle_degrees,normal_force_newtons*0.001,0.0,1.0,peak);
+}
 }

@@ -24,12 +24,15 @@ extern "C" double fayawo_selected_gearbox_torque(int,double);
 extern "C" double fayawo_selected_brake_torque(double);
 extern "C" double fayawo_selected_suspension_force(double,double);
 extern "C" double fayawo_selected_engine_torque(double,double);
+extern "C" int fayawo_tire_config_load(const char*);
+extern "C" double fayawo_tire_longitudinal_force(double,double);
+extern "C" double fayawo_tire_lateral_force(double,double);
 
 static bool near(double a, double b, double tol=1e-6) {
   return std::abs(a-b)<tol;
 }
 int main() {
-    assert(fayawo_physics_abi_version()==6);
+    assert(fayawo_physics_abi_version()==7);
     assert(near(fayawo_vector_length(3,4,0),5));
     assert(near(fayawo_brake_torque(0,0,0),0));
     assert(near(fayawo_brake_torque(1,0,0),3066));
@@ -66,5 +69,15 @@ int main() {
     assert(near(fayawo_selected_suspension_force(0.1,0),-10000,1e-3));
     assert(std::isfinite(fayawo_selected_engine_torque(1,4000)));
     assert(fayawo_selected_engine_torque(1,4000)>0);
-    std::cout << "Original VDrift configs, suspension, engine, wheel and driveline smoke tests passed\n";
+    std::ifstream tirefile("data/carsim/normal/tires/asphalt.tire");
+    assert(tirefile.good());
+    std::ostringstream tirebuffer;
+    tirebuffer << tirefile.rdbuf();
+    assert(fayawo_tire_config_load(tirebuffer.str().c_str()) == 1);
+    assert(near(fayawo_tire_longitudinal_force(0,4000),0,1e-6));
+    assert(std::isfinite(fayawo_tire_longitudinal_force(0.1,4000)));
+    assert(std::abs(fayawo_tire_longitudinal_force(0.1,4000))>100);
+    assert(std::isfinite(fayawo_tire_lateral_force(5,4000)));
+    assert(near(fayawo_tire_lateral_force(0,0),0));
+    std::cout << "Original VDrift config, tyre Pacejka, suspension and driveline smoke tests passed\n";
 }
