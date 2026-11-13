@@ -3,6 +3,8 @@
 #include "carbrake.h"
 #include "caraero.h"
 #include "mathvector.h"
+#include "carclutch.h"
+#include "cartransmission.h"
 #include <cmath>
 #include <algorithm>
 
@@ -31,5 +33,32 @@ double fayawo_vector_length(double x, double y, double z) {
     return MATHVECTOR<Dbl,3>(x,y,z).Magnitude();
 }
 
-int fayawo_physics_abi_version() { return 1; }
+// Actual original CARCLUTCH::GetTorque() in src/vdrift/carclutch.cpp.
+double fayawo_clutch_torque(double engagement,double engine_rads,double shaft_rads) {
+    CARCLUTCH clutch;
+    clutch.SetClutch(std::clamp(engagement, 0.0, 1.0));
+    return clutch.GetTorque(engine_rads, shaft_rads);
+}
+
+// Actual original CARTRANSMISSION gearbox and shaft calculations.
+double fayawo_gearbox_torque(int gear,double engine_torque) {
+    CARTRANSMISSION transmission;
+    transmission.SetGearRatio(-1,-3.1);
+    transmission.SetGearRatio(1,3.2);
+    transmission.SetGearRatio(2,2.1);
+    transmission.SetGearRatio(3,1.4);
+    transmission.Shift(gear);
+    return transmission.GetTorque(engine_torque);
+}
+
+double fayawo_clutch_speed(int gear,double shaft_rads) {
+    CARTRANSMISSION transmission;
+    transmission.SetGearRatio(1,3.2);
+    transmission.SetGearRatio(2,2.1);
+    transmission.SetGearRatio(3,1.4);
+    transmission.Shift(gear);
+    return transmission.GetClutchSpeed(shaft_rads);
+}
+
+int fayawo_physics_abi_version() { return 2; }
 }
