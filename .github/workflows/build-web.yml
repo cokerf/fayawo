@@ -1,7 +1,7 @@
 name: Build Fayawo WebAssembly physics milestone
 on:
   push:
-    branches: [main, feat/web-original-differential]
+    branches: [main, feat/web-coupled-wheel-contact]
     paths:
       - "web/**"
       - "src/vdrift/carbrake.cpp"
@@ -15,6 +15,7 @@ on:
       - "src/vdrift/carsuspension.cpp"
       - "src/vdrift/configfile.cpp"
       - "web/bullet_probe.cpp"
+      - "web/coupled_contact.cpp"
       - "src/vdrift/cartire.cpp"
       - "src/vdrift/cartire.h"
       - "src/vdrift/configfile.h"
