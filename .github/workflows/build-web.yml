@@ -40,7 +40,7 @@ jobs:
       - name: Build real VDrift C++ as WebAssembly
         run: bash web/build.sh
       - name: Verify browser artifacts
-        run: test -s site/bullet.js && test -s site/bullet.wasm && test -s site/rigidbody-ui.js && test -s site/index.html && test -s site/tire-plot.js && test -s site/physics.js && test -s site/physics.wasm && test -s site/assets/manifest.json && test -s site/assets/tires/asphalt.tire && test -s site/assets/cars/ES.car
+        run: test -s site/bullet.js && test -s site/bullet.wasm && test -s site/contact-ui.js && test -s site/rigidbody-ui.js && test -s site/index.html && test -s site/tire-plot.js && test -s site/physics.js && test -s site/physics.wasm && test -s site/assets/manifest.json && test -s site/assets/tires/asphalt.tire && test -s site/assets/cars/ES.car
       - uses: actions/upload-artifact@v4
         with:
           name: fayawo-browser-wasm-milestone
