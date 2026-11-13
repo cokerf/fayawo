@@ -1,6 +1,7 @@
 // Diagnostics for the ORIGINAL VDrift RIGIDBODY integration used in CARDYNAMICS.
 // No JavaScript physics. Every simulation step runs in compiled native C++.
 window.initFayawoRigidBody = function(module){
+ if(window.__fayawoRigidBodyRedraw){window.__fayawoRigidBodyRedraw();return;}
  const el=(id)=>document.getElementById(id);
  const seconds=el('body-time'),force=el('body-force'),torque=el('body-torque');
  const draw=()=>{
