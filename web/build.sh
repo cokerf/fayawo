@@ -7,6 +7,7 @@ if ! command -v em++ >/dev/null 2>&1; then
 fi
 mkdir -p site
 cp web/index.html site/index.html
+cp web/tire-plot.js site/tire-plot.js
 em++ -std=c++17 -O2 -DFAYAWO_WEB \
   -I src/vdrift \
   web/physics_bridge.cpp \
