@@ -2,6 +2,7 @@
 #include "pch.h"
 #endif
 #include "cartransmission.h"
+#include <cassert>
 #ifndef FAYAWO_WEB
 #include "Def_Str.h"
 #endif
