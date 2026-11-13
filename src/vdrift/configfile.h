@@ -5,7 +5,9 @@
 #include <iostream>
 
 #include "bucketed_hashmap.h"
+#ifndef FAYAWO_WEB
 #include "Def_Str.h"
+#endif
 
 
 class CONFIGVARIABLE
@@ -89,7 +91,11 @@ public:
 	{
 		if (!GetParam(param, output))
 		{	//  dont use before new ogre root
-			LogO("CFG Error: no parameter \""+param+"\" in file: "+LoadedFile());
+			#ifdef FAYAWO_WEB
+            std::cerr << "CFG Error: missing parameter " << param << " in " << LoadedFile() << '\n';
+#else
+            LogO("CFG Error: no parameter \"" + param + "\" in file: " + LoadedFile());
+#endif
 			return false;
 		}
 		return true;
