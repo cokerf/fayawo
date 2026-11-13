@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10191c">
+<title>Fayawo — Rally</title>
+<style>
+:root{color-scheme:dark;font-family:Arial,Helvetica,sans-serif}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#10191c;color:#fff}canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}#hud{position:fixed;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(18px,3vw,40px);padding-top:max(20px,env(safe-area-inset-top));padding-bottom:max(20px,env(safe-area-inset-bottom));text-shadow:0 1px 9px #0009}.top,.bottom{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.brand{font-size:14px;font-weight:900;letter-spacing:.24em}.sub{font-size:11px;letter-spacing:.14em;opacity:.7;margin-top:8px}.meters{font-size:13px;font-weight:bold;letter-spacing:.11em;text-align:right}.speed{font-variant-numeric:tabular-nums;font-size:clamp(52px,8vw,100px);line-height:.85;font-weight:900;letter-spacing:-.07em}.unit{font-size:12px;letter-spacing:.15em;margin:10px 0 0 4px}.hint{text-align:right;font-size:12px;line-height:1.7;opacity:.8}.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0a1318a8;backdrop-filter:blur(10px);padding:24px}.panel{max-width:440px;width:100%;text-align:center}.panel h1{font-size:clamp(60px,13vw,110px);line-height:.8;letter-spacing:-.09em;margin:0 0 24px;font-weight:900}.panel p{font-size:14px;line-height:1.8;color:#d5dfde;margin-bottom:26px}.panel button{background:#e5f4c9;color:#142120;border:0;padding:17px 36px;font-weight:900;letter-spacing:.12em;font-size:12px;cursor:pointer}.panel button:focus-visible{outline:3px solid white;outline-offset:4px}.touch{position:fixed;inset:auto 0 max(16px,env(safe-area-inset-bottom)) 0;display:none;justify-content:space-between;padding:0 18px;pointer-events:none}.touchside{display:flex;gap:10px}.touch button{pointer-events:auto;touch-action:none;border:1px solid #ffffff70;border-radius:2px;background:#0b1a1a8a;color:white;width:65px;height:65px;font-size:26px;font-weight:700;user-select:none}.touch button:active,.touch button.pressed{background:#d6edb7;color:#0b1a1a}#pause{pointer-events:auto;background:none;border:1px solid #ffffff70;color:white;cursor:pointer;padding:8px 13px;font-size:11px;letter-spacing:.15em;margin-top:12px}@media(pointer:coarse),(max-width:720px){.touch{display:flex}.hint{display:none}.bottom{padding-bottom:82px}.speed{font-size:65px}.brand{font-size:12px}.sub{font-size:10px}}
+</style>
+</head>
+<body>
+<canvas id="game" aria-label="Playable rally racing game"></canvas>
+<div id="hud">
+ <div class="top"><div><div class="brand">FAYAWO <span style="font-weight:400;opacity:.5">/ RALLY</span></div><div class="sub">BROWSER EDITION · PROTOTYPE</div><button id="pause" type="button" aria-label="Pause game">PAUSE</button></div><div class="meters"><div id="distance">0.00 KM</div><div class="sub" id="status">GRAVEL STAGE 01</div></div></div>
+ <div class="bottom"><div><div class="speed" id="speed">000</div><div class="unit">KM/H</div></div><div class="hint">W / ↑ ACCELERATE<br>S / ↓ BRAKE<br>A D / ← → STEER<br>SPACE HANDBRAKE · P PAUSE</div></div>
+</div>
+<div class="touch" aria-label="Touch driving controls"><div class="touchside"><button data-key="left" aria-label="Steer left">←</button><button data-key="right" aria-label="Steer right">→</button></div><div class="touchside"><button data-key="brake" aria-label="Brake">−</button><button data-key="gas" aria-label="Accelerate">+</button></div></div>
+<div class="overlay" id="overlay"><div class="panel"><h1>FAYAWO.</h1><p>One winding gravel stage. Keep your wheels on the road.<br>Use WASD or arrow keys to drive. Touch controls are available on mobile.</p><button type="button" id="start">START RACE</button></div></div>
+<script>
+(()=>{'use strict';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d',{alpha:false});
+const speedEl=document.getElementById('speed'),distEl=document.getElementById('distance'),statusEl=document.getElementById('status');
+const overlay=document.getElementById('overlay'),start=document.getElementById('start'),pauseButton=document.getElementById('pause');
+const keys={left:false,right:false,gas:false,brake:false,handbrake:false};let W=0,H=0,dpr=1,last=0,running=false,started=false;
+const world={pos:0,lateral:0,speed:0,heading:0,shake:0,damage:0,elapsed:0,dust:[],stage:0};
+const SEG=180,ROAD=2100,DRAW=160,MAX=9200;
+let segments=[],trackLength=0;
+function generateTrack(){segments=[];for(let i=0;i<1200;i++){let curve=Math.sin(i/41)*.54+Math.sin(i/89+1.6)*.74+Math.sin(i/22)*.15;let hill=Math.sin(i/38)*590+Math.sin(i/91)*860+Math.sin(i/17)*140;segments.push({curve,hill,seed:Math.sin(i*142.49)*43758.54})}trackLength=segments.length*SEG}
+function resize(){dpr=Math.min(2,window.devicePixelRatio||1);W=window.innerWidth;H=window.innerHeight;canvas.width=Math.max(1,Math.floor(W*dpr));canvas.height=Math.max(1,Math.floor(H*dpr));ctx.setTransform(dpr,0,0,dpr,0,0)}
+function poly(color,pts){ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(pts[0],pts[1]);for(let i=2;i<pts.length;i+=2)ctx.lineTo(pts[i],pts[i+1]);ctx.closePath();ctx.fill()}
+function rect(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x,y,w,h)}
+function project(wx,wy,wz,camX,camY,camZ){let z=Math.max(1,wz-camZ),scale=700/z;return{x:W/2+(wx-camX)*scale,y:H*.51-(wy-camY)*scale,w:ROAD*scale,scale}}
+function scenery(x,y,s,t){if(s<.025)return;let h=Math.min(H*1.3,1800*s),w=h*.6;if(t<.68){rect(x-w*.09,y-h*.26,w*.18,h*.27,'#453e30');poly('#294e3d',[x,y-h,x-w*.54,y-h*.22,x-w*.29,y-h*.27,x-w*.68,y-h*.05,x+w*.64,y-h*.05,x+w*.25,y-h*.29,x+w*.5,y-h*.2]);poly('#38684d',[x,y-h*.94,x-w*.42,y-h*.23,x+w*.46,y-h*.23])}else{poly('#b6a579',[x,y-h*.4,x-w*.18,y,x+w*.18,y]);poly('#8c856c',[x,y-h*.37,x,y-h*.12,x+w*.18,y])}}
+function drawRoad(){let horizon=H*.51;let sky=ctx.createLinearGradient(0,0,0,horizon);sky.addColorStop(0,'#243b4c');sky.addColorStop(.7,'#63878b');sky.addColorStop(1,'#e5b995');rect(0,0,W,H,sky);
+const sunX=W*.78,sunY=horizon*.48;ctx.fillStyle='#ffddb0';ctx.beginPath();ctx.arc(sunX,sunY,Math.max(22,W*.033),0,Math.PI*2);ctx.fill();
+poly('#526d69',[0,horizon,W*.08,horizon-55,W*.18,horizon-26,W*.35,horizon-105,W*.53,horizon-31,W*.75,horizon-78,W,horizon-10,W,horizon]);
+poly('#698174',[0,horizon,W*.2,horizon-19,W*.42,horizon-59,W*.62,horizon-16,W*.84,horizon-44,W,horizon]);rect(0,horizon,W,H-horizon,'#707b55');
+let baseIndex=Math.floor(world.pos/SEG),basePercent=world.pos%SEG/SEG,camHeight=960+segments[baseIndex%segments.length].hill;
+let x=0,dx=0,maxY=H,visible=[];
+for(let n=0;n<DRAW;n++){let index=(baseIndex+n)%segments.length,seg=segments[index];let z=n*SEG-basePercent*SEG;let camX=world.lateral*ROAD+x;let p=project(0,seg.hill,z+700,camX,camHeight,0);
+x+=dx;dx+=seg.curve*11;
+if(p.y>=maxY||p.y<0||p.w>W*8)continue;
+visible.push({p,index,n,seg});maxY=p.y}
+let previous=null;
+for(let i=visible.length-1;i>=0;i--){const curr=visible[i],p=curr.p;if(!previous){previous=curr;continue}let q=previous.p; if(p.y<q.y){previous=curr;continue}
+let road1=p.w,road2=q.w,wide=1.18;
+poly(curr.index%6<3?'#6f7651':'#747d55',[0,p.y,W,p.y,W,q.y,0,q.y]);
+poly(curr.index%8<4?'#b1a27f':'#9f9275',[p.x-road1*wide,p.y,p.x+road1*wide,p.y,q.x+road2*wide,q.y,q.x-road2*wide,q.y]);
+poly(curr.index%8<4?'#5c5143':'#635a4a',[p.x-road1,p.y,p.x+road1,p.y,q.x+road2,q.y,q.x-road2,q.y]);
+if(curr.index%14<7){poly('#c8bf9f',[p.x-road1*.035,p.y,p.x+road1*.035,p.y,q.x+road2*.035,q.y,q.x-road2*.035,q.y])}
+if(curr.index%11===0&&curr.n>4){let seed=Math.abs(curr.seg.seed)%1;scenery(p.x-road1*1.55,p.y,p.scale,seed);scenery(p.x+road1*1.7,p.y,p.scale,Math.abs(Math.sin(curr.index*3.7)))}previous=curr}
+}
+function car(){let cx=W/2+world.heading*W*.028,cy=H*.81+Math.sin(world.elapsed*17)*Math.min(3,world.speed/2800);let s=Math.min(W/900,H/750,1.55);s=Math.max(.52,s);ctx.save();ctx.translate(cx,cy);ctx.scale(s,s);ctx.rotate(-world.heading*.045);
+ctx.fillStyle='#1a1714aa';ctx.beginPath();ctx.ellipse(0,47,110,34,0,0,Math.PI*2);ctx.fill();
+poly('#161d1e',[-91,25,-112,49,-88,67,-64,60,-62,21]);
+poly('#161d1e',[91,25,112,49,88,67,64,60,62,21]);
+poly('#252c30',[-91,-25,-78,-65,-47,-106,46,-106,79,-65,91,-25,91,44,73,66,-73,66,-91,44]);
+poly('#cfe2ce',[-84,-22,-73,-63,-43,-96,43,-96,73,-63,84,-22,84,35,-84,35]);
+poly('#283f44',[-67,-48,-38,-91,38,-91,67,-48]);
+poly('#263c41',[-63,-42,63,-42,70,-18,-70,-18]);
+poly('#95b5ad',[-78,40,78,40,68,54,-68,54]);
+poly('#26373b',[-84,27,84,27,82,39,-82,39]);
+rect(-75,28,24,9,'#ec4737');rect(51,28,24,9,'#ec4737');
+rect(-30,46,60,8,'#1e272a');rect(-22,46,44,4,'#dde3d8');
+ctx.restore()}
+function dust(){const x=W/2,y=H*.85;if(world.speed>250&&Math.abs(world.lateral)>.88&&Math.random()<.45)world.dust.push({x:x+(Math.random()-.5)*150,y:y+30,r:3+Math.random()*8,life:1});for(let i=world.dust.length-1;i>=0;i--){let d=world.dust[i];d.y-=.5+world.speed/5500;d.x+=(d.x-x)*.01;d.r+=.25;d.life-=.02;ctx.fillStyle='rgba(194,177,142,'+(d.life*.19)+')';ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);ctx.fill();if(d.life<=0)world.dust.splice(i,1)}}
+function update(dt){if(!running)return;world.elapsed+=dt;const gas=keys.gas?1:0,brake=keys.brake?1:0;let offroad=Math.abs(world.lateral)>1.02;world.speed+=((gas?4400:0)-(brake?7500:0)-(keys.handbrake?8000:0)-950-world.speed*(offroad?.86:.22))*dt;world.speed=Math.max(0,Math.min(MAX,world.speed));let steer=(Number(keys.right)-Number(keys.left));let handling=(.3+world.speed/MAX*.9)*(keys.handbrake?1.5:1);world.heading+=(steer*handling-world.heading*2.3)*dt;world.lateral+=(steer*dt*(.35+world.speed/MAX*1.5))-(segments[Math.floor(world.pos/SEG)%segments.length].curve*world.speed*dt/110000);world.lateral=Math.max(-2.6,Math.min(2.6,world.lateral));world.pos=(world.pos+world.speed*dt)%trackLength;world.stage+=world.speed*dt/1000;world.shake=offroad?1:0;
+speedEl.textContent=String(Math.round(world.speed/MAX*235)).padStart(3,'0');distEl.textContent=(world.stage/1000).toFixed(2)+' KM';statusEl.textContent=offroad?'OFF ROAD · SLOW DOWN':'GRAVEL STAGE 01'}
+function frame(now){let dt=Math.min(.04,(now-last)/1000||0);last=now;update(dt);ctx.save();if(world.shake&&running)ctx.translate((Math.random()-.5)*3,(Math.random()-.5)*3);drawRoad();dust();car();ctx.restore();requestAnimationFrame(frame)}
+function setPause(p){running=!p;overlay.hidden=!p;overlay.style.display=p?'flex':'none';start.textContent=started?'RESUME RACE':'START RACE';pauseButton.textContent=p?'RESUME':'PAUSE'}
+start.addEventListener('click',()=>{started=true;setPause(false)});
+pauseButton.addEventListener('click',()=>setPause(running));
+const map={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'gas',KeyW:'gas',ArrowDown:'brake',KeyS:'brake',Space:'handbrake'};
+window.addEventListener('keydown',e=>{if(map[e.code]){keys[map[e.code]]=true;e.preventDefault()}if(e.code==='KeyP'||e.code==='Escape'){setPause(running);e.preventDefault()}});
+window.addEventListener('keyup',e=>{if(map[e.code]){keys[map[e.code]]=false;e.preventDefault()}});
+window.addEventListener('blur',()=>{Object.keys(keys).forEach(k=>keys[k]=false);if(running)setPause(true)});
+for(const btn of document.querySelectorAll('[data-key]')){const k=btn.dataset.key;const change=(v,e)=>{e.preventDefault();keys[k]=v;btn.classList.toggle('pressed',v)};btn.addEventListener('pointerdown',e=>{btn.setPointerCapture(e.pointerId);change(true,e)});for(const name of ['pointerup','pointercancel','lostpointercapture'])btn.addEventListener(name,e=>change(false,e))}
+window.addEventListener('resize',resize);generateTrack();resize();setPause(true);requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
