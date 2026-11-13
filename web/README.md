@@ -35,6 +35,12 @@ The `feat/webassembly-port` branch has its own `netlify.toml`. It runs `web/buil
 
 **This is a physics/configuration diagnostic, not a playable port.** The root `index.html` belongs to the earlier substitute prototype and is **not** published from this branch. Netlify installs may be lengthy and could fail due to external tooling or build limits; verify deployment logs before sharing a working preview.
 
+## Original tyre physics milestone
+
+The `src/vdrift/cartire.cpp` Pacejka calculations now join the browser WebAssembly target. `web/prepare-assets.py` stages original `data/carsim/normal/tires/*.tire` assets alongside original `.car` files. The diagnostic loads an original `.tire` through the original `CONFIGFILE` parser and plots longitudinal and lateral force from original `CARTIRE` methods. Force plots are diagnostic only: they do not yet constitute coupled tyre/suspension/Bullet vehicle dynamics.
+
+The browser build also copies `web/tire-plot.js` for interactive diagnostic curves. This script only draws samples obtained by calling the compiled C++ functions.
+
 ## Important next milestones
 1. Compile the full Bullet-coupled `CARDYNAMICS` and surrounding original simulation as WebAssembly, replacing Ogre-bound data types at the boundary.
 2. Make existing asset paths and configuration portable; add original cars, tire configs and track assets to a streaming/preloaded filesystem.
