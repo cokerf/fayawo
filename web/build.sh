@@ -29,5 +29,13 @@ em++ -std=c++17 -O2 -DFAYAWO_WEB \
   -s ALLOW_MEMORY_GROWTH=1 \
   -s EXPORTED_FUNCTIONS='["_fayawo_brake_torque","_fayawo_aero_drag","_fayawo_vector_length","_fayawo_clutch_torque","_fayawo_gearbox_torque","_fayawo_clutch_speed","_fayawo_engine_torque","_fayawo_wheel_rolling_resistance","_fayawo_wheel_inertia","_fayawo_suspension_force","_fayawo_suspension_step","_fayawo_car_config_load","_fayawo_car_config_number","_fayawo_car_config_exists","_fayawo_selected_gearbox_torque","_fayawo_selected_brake_torque","_fayawo_selected_suspension_force","_fayawo_selected_engine_torque","_fayawo_tire_config_load","_fayawo_tire_longitudinal_force","_fayawo_tire_lateral_force","_fayawo_physics_abi_version"]' \
   -o site/physics.js
+# The same Bullet C++ dependency used by the native game, compiled for WASM.
+em++ -std=c++17 -O2 -sUSE_BULLET=1 --no-entry \
+  web/bullet_probe.cpp \
+  -s MODULARIZE=1 \
+  -s EXPORT_NAME=createFayawoBullet \
+  -s ENVIRONMENT=web \
+  -s EXPORTED_FUNCTIONS='["_fayawo_bullet_drop_height","_fayawo_bullet_probe_version"]' \
+  -o site/bullet.js
 python3 web/prepare-assets.py
 echo "WebAssembly physics module and original car configs built into site/"
