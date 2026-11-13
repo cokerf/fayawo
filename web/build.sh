@@ -12,6 +12,8 @@ em++ -std=c++17 -O2 -DFAYAWO_WEB \
   web/physics_bridge.cpp \
   src/vdrift/carbrake.cpp \
   src/vdrift/caraero.cpp \
+  src/vdrift/carclutch.cpp \
+  src/vdrift/cartransmission.cpp \
   --no-entry \
   -s WASM=1 \
   -s MODULARIZE=1 \
