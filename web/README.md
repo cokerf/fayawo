@@ -29,6 +29,12 @@ The C++ `CONFIGFILE` parser is also compiled from `src/vdrift/configfile.cpp`. T
 
 The asset staging command copies the original `data/carsim/normal/cars/*.car` vehicle configuration files into `site/assets/cars/`, plus a JSON manifest. The original C++ parser loads the vehicle configuration and feeds select physics subsystems, but **full CARDYNAMICS construction, terrain physics and 3D rendering are not implemented**. The diagnostic shows selected values only.
 
+## Netlify branch preview
+
+The `feat/webassembly-port` branch has its own `netlify.toml`. It runs `web/build-netlify.sh`, which installs pinned Emscripten **during the build**, compiles the original VDrift C++ WebAssembly module, and publishes `site/index.html`, `site/physics.js`, `site/physics.wasm` and original car configuration files.
+
+**This is a physics/configuration diagnostic, not a playable port.** The root `index.html` belongs to the earlier substitute prototype and is **not** published from this branch. Netlify installs may be lengthy and could fail due to external tooling or build limits; verify deployment logs before sharing a working preview.
+
 ## Important next milestones
 1. Compile the full Bullet-coupled `CARDYNAMICS` and surrounding original simulation as WebAssembly, replacing Ogre-bound data types at the boundary.
 2. Make existing asset paths and configuration portable; add original cars, tire configs and track assets to a streaming/preloaded filesystem.
