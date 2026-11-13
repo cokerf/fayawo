@@ -7,6 +7,7 @@
 #include "cartransmission.h"
 #include "carengine.h"
 #include "carwheel.h"
+#include "carsuspension.h"
 #include <cmath>
 #include <algorithm>
 
@@ -87,5 +88,17 @@ double fayawo_wheel_inertia() {
     return wheel.GetInertia();
 }
 
-int fayawo_physics_abi_version() { return 3; }
+// Original CARSUSPENSION spring, compression and rebound damping.
+double fayawo_suspension_force(double displacement, double velocity) {
+    CARSUSPENSION suspension;
+    return suspension.GetForce(std::clamp(displacement, 0.0, suspension.GetTravel()), velocity);
+}
+
+double fayawo_suspension_step(double dt, double displacement) {
+    if (dt <= 0.0) return 0.0;
+    CARSUSPENSION suspension;
+    return suspension.Update(dt, displacement);
+}
+
+int fayawo_physics_abi_version() { return 4; }
 }
