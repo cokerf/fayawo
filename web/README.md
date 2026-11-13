@@ -3,10 +3,10 @@
 This branch begins a source-level port of the C++ Stunt Rally 3 game.
 
 ## What is already real
-- The code in `src/vdrift/carbrake.cpp`, `src/vdrift/caraero.cpp` and `src/vdrift/mathvector.h` is compiled from the original repository, not rewritten in JavaScript.
+- The code in `src/vdrift/carbrake.cpp`, `src/vdrift/caraero.cpp`, `src/vdrift/carclutch.cpp`, `src/vdrift/cartransmission.cpp`, `src/vdrift/carengine.cpp`, `src/vdrift/carwheel.cpp` and the original vector/rotational-frame headers is compiled from the original repository, not rewritten in JavaScript.
 - `physics_bridge.cpp` is a narrow C ABI exposing methods from those original physics classes.
-- Only debug-print and native precompiled-header dependencies are conditionally excluded from the two original source files for `FAYAWO_WEB`.
-- Native smoke tests assert real numerical results.
+- Only desktop precompiled-header and debug-print dependencies are conditionally excluded from the six original implementation files for `FAYAWO_WEB`.
+- Native smoke tests assert numerical results for the original ES.car parser, ES vehicle-specific suspension/engine/brakes/gearbox, baseline suspension forces, engine torque, wheel resistance, aero, clutch, and vectors (run in CI; inspect the workflow result before treating them as passed).
 - `build.sh` compiles those original files to `physics.wasm` and the Emscripten JS loader. The `site/index.html` is a diagnostic page, **not** a playable game.
 
 ## Build locally
@@ -19,7 +19,21 @@ python3 -m http.server 8000 -d site
 
 Visit http://localhost:8000/. Use HTTP, not `file://`, because WebAssembly modules are fetched by the browser.
 
-The GitHub Actions workflow also builds artifacts and runs a native smoke test. Check the Actions run for verification.
+The GitHub Actions workflow is configured to build artifacts and run a native smoke test. **Do not claim these tests pass until a completed run has been inspected.**
+
+## Verification status
+
+Code has been committed, but a successful Emscripten build or browser run has **not yet been confirmed**. Consult the PR Checks tab and the `Build Fayawo WebAssembly physics milestone` workflow. This is not a playable game or a finished port.
+
+The C++ `CONFIGFILE` parser is also compiled from `src/vdrift/configfile.cpp`. The browser can load a selected original `.car` file and inspect its real engine RPM limit, first gear ratio, and front suspension travel **using the original C++ parser**. The selected vehicle also supplies the actual config values to original C++ subsystem calculations for engine torque, front brake torque, front spring force, and gearbox torque. This remains subsystem-level verification, **not** full vehicle simulation. Original `CARSUSPENSION` spring and damping force calculations are exposed through the same WebAssembly bridge.
+
+The asset staging command copies the original `data/carsim/normal/cars/*.car` vehicle configuration files into `site/assets/cars/`, plus a JSON manifest. The original C++ parser loads the vehicle configuration and feeds select physics subsystems, but **full CARDYNAMICS construction, terrain physics and 3D rendering are not implemented**. The diagnostic shows selected values only.
+
+## Netlify branch preview
+
+The `feat/webassembly-port` branch has its own `netlify.toml`. It runs `web/build-netlify.sh`, which installs pinned Emscripten **during the build**, compiles the original VDrift C++ WebAssembly module, and publishes `site/index.html`, `site/physics.js`, `site/physics.wasm` and original car configuration files.
+
+**This is a physics/configuration diagnostic, not a playable port.** The root `index.html` belongs to the earlier substitute prototype and is **not** published from this branch. Netlify installs may be lengthy and could fail due to external tooling or build limits; verify deployment logs before sharing a working preview.
 
 ## Important next milestones
 1. Compile the full Bullet-coupled `CARDYNAMICS` and surrounding original simulation as WebAssembly, replacing Ogre-bound data types at the boundary.

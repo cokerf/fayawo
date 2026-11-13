@@ -1,8 +1,13 @@
+#ifndef FAYAWO_WEB
 #include "pch.h"
+#endif
 #include "carclutch.h"
+#ifndef FAYAWO_WEB
 #include "Def_Str.h"
+#endif
 
 
+#ifndef FAYAWO_WEB
 void CARCLUTCH::DebugPrint(std::ostream & out)
 {
 	out << "---Clutch---" << std::endl;
@@ -12,6 +17,7 @@ void CARCLUTCH::DebugPrint(std::ostream & out)
 	out << "Engine" << fToStr(engine_speed, 0,5) << std::endl;
 	out << "Drive " << fToStr(drive_speed, 0,5) << std::endl;
 }
+#endif
 
 // clutch is modeled as limited higly viscous coupling
 Dbl CARCLUTCH::GetTorque (Dbl n_engine_speed, Dbl n_drive_speed)

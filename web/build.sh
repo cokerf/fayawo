@@ -12,12 +12,20 @@ em++ -std=c++17 -O2 -DFAYAWO_WEB \
   web/physics_bridge.cpp \
   src/vdrift/carbrake.cpp \
   src/vdrift/caraero.cpp \
+  src/vdrift/carclutch.cpp \
+  src/vdrift/cartransmission.cpp \
+  src/vdrift/carengine.cpp \
+  src/vdrift/carwheel.cpp \
+  src/vdrift/carsuspension.cpp \
+  src/vdrift/configfile.cpp \
   --no-entry \
   -s WASM=1 \
   -s MODULARIZE=1 \
   -s EXPORT_NAME=createFayawoPhysics \
   -s ENVIRONMENT=web \
+  -s EXPORTED_RUNTIME_METHODS='["cwrap"]' \
   -s ALLOW_MEMORY_GROWTH=1 \
-  -s EXPORTED_FUNCTIONS='["_fayawo_brake_torque","_fayawo_aero_drag","_fayawo_vector_length","_fayawo_physics_abi_version"]' \
+  -s EXPORTED_FUNCTIONS='["_fayawo_brake_torque","_fayawo_aero_drag","_fayawo_vector_length","_fayawo_clutch_torque","_fayawo_gearbox_torque","_fayawo_clutch_speed","_fayawo_engine_torque","_fayawo_wheel_rolling_resistance","_fayawo_wheel_inertia","_fayawo_suspension_force","_fayawo_suspension_step","_fayawo_car_config_load","_fayawo_car_config_number","_fayawo_car_config_exists","_fayawo_selected_gearbox_torque","_fayawo_selected_brake_torque","_fayawo_selected_suspension_force","_fayawo_selected_engine_torque","_fayawo_physics_abi_version"]' \
   -o site/physics.js
-echo "WebAssembly physics module built into site/"
+python3 web/prepare-assets.py
+echo "WebAssembly physics module and original car configs built into site/"

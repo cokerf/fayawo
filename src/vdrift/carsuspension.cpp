@@ -1,8 +1,13 @@
+#ifndef FAYAWO_WEB
 #include "pch.h"
+#endif
 #include "carsuspension.h"
+#ifndef FAYAWO_WEB
 #include "Def_Str.h"
+#endif
 
 
+#ifndef FAYAWO_WEB
 void CARSUSPENSION::DebugPrint(std::ostream & out)
 {
 	//out << "---Suspension---" << std::endl;
@@ -12,6 +17,7 @@ void CARSUSPENSION::DebugPrint(std::ostream & out)
 	//out << "Spring " << fToStr(spring_factors.Interpolate(displacement), 2,4) << std::endl;
 	//out << "Damp   " << fToStr(damper_factors.Interpolate(std::abs(velocity)), 2,4) << std::endl;
 }
+#endif
 
 ///compute the suspension force for the given time interval and external displacement
 Dbl CARSUSPENSION::Update(Dbl dt, Dbl ext_displacement)

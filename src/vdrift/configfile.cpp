@@ -1,8 +1,14 @@
+#ifndef FAYAWO_WEB
 #include "pch.h"
+#endif
 //#include "Def_Str.h"
 
 #include "configfile.h"
+#ifndef FAYAWO_WEB
 #include "unittest.h"
+#endif
+#include <cstdio>
+#include <cstdlib>
 
 #include <fstream>
 #include <sstream>
@@ -571,6 +577,7 @@ bool CONFIGVARIABLE::operator<(const CONFIGVARIABLE & other)
 	return (section + "." + name < other.section + "." + other.name);
 }
 
+#ifndef FAYAWO_WEB
 QT_TEST(configfile_test)
 {
 	std::stringstream instream;
@@ -645,3 +652,5 @@ QT_TEST(configfile_test)
 		QT_CHECK(i == slist.end());
 	}
 }
+
+#endif // !FAYAWO_WEB

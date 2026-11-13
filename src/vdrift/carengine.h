@@ -9,7 +9,9 @@
 #include "spline.h"
 #include "linearinterp.h"
 #include "mathvector.h"
+#ifndef FAYAWO_WEB
 #include "Def_Str.h"
+#endif
 
 
 class CARENGINE

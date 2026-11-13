@@ -5,11 +5,23 @@ on:
     paths:
       - "web/**"
       - "src/vdrift/carbrake.cpp"
+      - "src/vdrift/carclutch.cpp"
+      - "src/vdrift/cartransmission.cpp"
+      - "src/vdrift/carengine.cpp"
+      - "src/vdrift/carengine.h"
+      - "src/vdrift/carwheel.cpp"
+      - "src/vdrift/carsuspension.cpp"
+      - "src/vdrift/configfile.cpp"
+      - "src/vdrift/configfile.h"
+      - "src/vdrift/carsuspension.h"
+      - "src/vdrift/carwheel.h"
       - "src/vdrift/caraero.cpp"
       - "src/vdrift/carbrake.h"
       - "src/vdrift/caraero.h"
       - "src/vdrift/mathvector.h"
       - ".github/workflows/build-web.yml"
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 jobs:
   wasm:
@@ -22,7 +34,7 @@ jobs:
       - name: Build real VDrift C++ as WebAssembly
         run: bash web/build.sh
       - name: Verify browser artifacts
-        run: test -s site/index.html && test -s site/physics.js && test -s site/physics.wasm
+        run: test -s site/index.html && test -s site/physics.js && test -s site/physics.wasm && test -s site/assets/manifest.json && test -s site/assets/cars/ES.car
       - uses: actions/upload-artifact@v4
         with:
           name: fayawo-browser-wasm-milestone
@@ -35,5 +47,7 @@ jobs:
         run: |
           c++ -std=c++17 -O2 -DFAYAWO_WEB -I src/vdrift \
             web/physics_bridge.cpp src/vdrift/carbrake.cpp src/vdrift/caraero.cpp \
+            src/vdrift/carclutch.cpp src/vdrift/cartransmission.cpp \
+            src/vdrift/carengine.cpp src/vdrift/carwheel.cpp src/vdrift/carsuspension.cpp src/vdrift/configfile.cpp \
             web/tests/physics_smoke.cpp -o /tmp/fayawo-physics-test
           /tmp/fayawo-physics-test
