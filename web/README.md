@@ -57,6 +57,12 @@ The WebAssembly browser diagnostic uses the original class through C ABI functio
 
 GitHub Actions workflow run [#79](https://github.com/cokerf/fayawo/actions/runs/43515477989) reported that both `wasm` and `native-smoke` jobs **never started because of a GitHub account billing lock**. Those red checks are **not** evidence of failed compilation or failing tests, and the native unit-test executable has not been run by Actions. The owner must resolve the GitHub billing/account issue to restore workflow execution. In the meantime, Netlify builds the actual Emscripten WASM modules and branch previews are browser-tested before merging.
 
+## Original VDrift limited-slip differential
+
+The original `src/vdrift/cardifferential.cpp` and `CARDIFFERENTIAL` class are included in the browser WebAssembly target. Selected original `.car` `differential.final-drive` and `differential.anti-slip` values determine the original C++ wheel torque allocation. The browser diagnostic demonstrates limited-slip torque redistribution with left–right wheel-speed differences, and native smoke tests assert torque conservation against the original ES vehicle's 4.54 final-drive ratio.
+
+This is a source-level driveline integration milestone, not a complete `CARDYNAMICS` loop. The actual wheel contacts, drivetrain timing, gear shifts and collision integration still need to be coupled with Bullet.
+
 ## Important next milestones
 1. Compile the full Bullet-coupled `CARDYNAMICS` and surrounding original simulation as WebAssembly, replacing Ogre-bound data types at the boundary.
 2. Make existing asset paths and configuration portable; add original cars, tire configs and track assets to a streaming/preloaded filesystem.

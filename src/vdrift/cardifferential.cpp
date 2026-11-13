@@ -1,7 +1,13 @@
+#ifndef FAYAWO_WEB
 #include "pch.h"
+#else
+#include <algorithm>
+#endif
 #include "dbl.h"
 #include "cardifferential.h"
+#ifndef FAYAWO_WEB
 #include "Def_Str.h"
+#endif
 
 
 //default constructor makes an S2000-like car
@@ -11,6 +17,7 @@ CARDIFFERENTIAL::CARDIFFERENTIAL()
 	, side1_speed(0), side2_speed(0), side1_torque(0), side2_torque(0)
 {	}
 
+#ifndef FAYAWO_WEB
 void CARDIFFERENTIAL::DebugPrint(std::ostream & out)
 {
 	//out << "---Differential---" << std::endl;
@@ -19,6 +26,7 @@ void CARDIFFERENTIAL::DebugPrint(std::ostream & out)
 	out << "1 Trq" << fToStr(side1_torque, 0,6) << std::endl;
 	out << "2 Trq" << fToStr(side2_torque, 0,6) << std::endl;
 }
+#endif
 
 void CARDIFFERENTIAL::ComputeWheelTorques(Dbl driveshaft_torque)
 {

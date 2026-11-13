@@ -35,12 +35,13 @@ extern "C" double fayawo_original_body_z();
 extern "C" double fayawo_original_body_vx();
 extern "C" double fayawo_original_body_vz();
 extern "C" double fayawo_original_body_yaw_rate();
+extern "C" double fayawo_selected_differential_side(int,double,double,double);
 
 static bool near(double a, double b, double tol=1e-6) {
   return std::abs(a-b)<tol;
 }
 int main() {
-    assert(fayawo_physics_abi_version()==7);
+    assert(fayawo_physics_abi_version()==8);
     assert(near(fayawo_vector_length(3,4,0),5));
     assert(near(fayawo_brake_torque(0,0,0),0));
     assert(near(fayawo_brake_torque(1,0,0),3066));
@@ -77,6 +78,12 @@ int main() {
     assert(near(fayawo_selected_suspension_force(0.1,0),-10000,1e-3));
     assert(std::isfinite(fayawo_selected_engine_torque(1,4000)));
     assert(fayawo_selected_engine_torque(1,4000)>0);
+    assert(near(fayawo_selected_differential_side(0,100,0,0),227,1e-4));
+    assert(near(fayawo_selected_differential_side(1,100,0,0),227,1e-4));
+    assert(near(fayawo_selected_differential_side(0,100,0.2,0),107,1e-4));
+    assert(near(fayawo_selected_differential_side(1,100,0.2,0),347,1e-4));
+    assert(near(fayawo_selected_differential_side(0,100,0.2,0)+
+                fayawo_selected_differential_side(1,100,0.2,0),454,1e-4));
     assert(fayawo_original_vehicle_mass()>1100);
     assert(fayawo_original_body_reset(fayawo_original_vehicle_mass(),10)==1);
     for(int i=0;i<120;i++)assert(fayawo_original_body_step(1.0/120.0,0,0)==1);
