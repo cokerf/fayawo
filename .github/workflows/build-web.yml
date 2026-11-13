@@ -12,6 +12,8 @@ on:
       - "src/vdrift/caraero.h"
       - "src/vdrift/mathvector.h"
       - ".github/workflows/build-web.yml"
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 jobs:
   wasm:
