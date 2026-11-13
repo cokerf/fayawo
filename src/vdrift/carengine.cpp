@@ -1,6 +1,10 @@
+#ifndef FAYAWO_WEB
 #include "pch.h"
+#endif
 #include "carengine.h"
+#ifndef FAYAWO_WEB
 #include "Def_Str.h"
+#endif
 
 
 CARENGINE::CARENGINE()
@@ -34,6 +38,7 @@ Dbl CARENGINE::GetFrictionTorque(Dbl cur_angvel, Dbl friction_factor, Dbl thrott
 			(1.0 - friction_factor*throttle_position);
 }
 
+#ifndef FAYAWO_WEB
 void CARENGINE::DebugPrint(std::ostream & out)
 {
 	out << "---Engine---" << std::endl;
@@ -46,6 +51,7 @@ void CARENGINE::DebugPrint(std::ostream & out)
 	//out << "Exceeded: " << rev_limit_exceeded << std::endl;
 	//out << "Running: " << !stalled << std::endl;
 }
+#endif
 
 void CARENGINE::ComputeForces()
 {
