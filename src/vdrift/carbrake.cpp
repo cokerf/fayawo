@@ -1,8 +1,13 @@
+#ifndef FAYAWO_WEB
 #include "pch.h"
+#endif
 #include "carbrake.h"
+#ifndef FAYAWO_WEB
 #include "Def_Str.h"
+#endif
 
 
+#ifndef FAYAWO_WEB
 void CARBRAKE::DebugPrint(std::ostream & out)
 {
 	//out << "---Brake---" << std::endl;
@@ -11,6 +16,7 @@ void CARBRAKE::DebugPrint(std::ostream & out)
 	out << "Torque " << fToStr(lasttorque, 0,5) << std::endl;
 	out << "Locked  " << locked << std::endl;
 }
+#endif
 
 ///brake torque magnitude
 Dbl CARBRAKE::GetTorque()
