@@ -47,6 +47,12 @@ The browser build also copies `web/tire-plot.js` for interactive diagnostic curv
 
 This is deliberately an isolated integration probe. **Fayawo's own `CARDYNAMICS` vehicle chassis, wheel contacts, tyres and terrain are not yet wired to Bullet**; it is not a playable stage. The native Bullet physics dependency is compiled rather than reimplemented in JS.
 
+## Original CARDYNAMICS rigid-body dependency
+
+`web/original_rigidbody.cpp` now instantiates and steps **the original `src/vdrift/rigidbody.h` RIGIDBODY class**. Its LINEARFRAME and ROTATIONALFRAME handle momentum, gravity, positional integration, angular momentum and yaw torque, just as in the source game. The test mass is derived from the selected original `.car` values (engine, driver, wheels, mass particles and declared fuel density). A simplified diagonal inertia estimate is used at this stage, **not** the full game's mass-particle inertia tensor.
+
+The WebAssembly browser diagnostic uses the original class through C ABI functions and shows free-body position and velocity after force/torque application. **The probe deliberately has no Bullet collision, wheel contacts, suspension attachment or ground constraint**, so its height falls below zero with sufficient simulated time. Those systems must be coupled through the original `CARDYNAMICS` to make the car drivable. No replacement game or fake physics engine is provided.
+
 ## Important next milestones
 1. Compile the full Bullet-coupled `CARDYNAMICS` and surrounding original simulation as WebAssembly, replacing Ogre-bound data types at the boundary.
 2. Make existing asset paths and configuration portable; add original cars, tire configs and track assets to a streaming/preloaded filesystem.
