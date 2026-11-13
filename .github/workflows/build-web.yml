@@ -1,7 +1,7 @@
 name: Build Fayawo WebAssembly physics milestone
 on:
   push:
-    branches: [feat/webassembly-port]
+    branches: [main, feat/web-tire-physics]
     paths:
       - "web/**"
       - "src/vdrift/carbrake.cpp"
