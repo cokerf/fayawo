@@ -14,12 +14,14 @@ em++ -std=c++17 -O2 -DFAYAWO_WEB \
   src/vdrift/caraero.cpp \
   src/vdrift/carclutch.cpp \
   src/vdrift/cartransmission.cpp \
+  src/vdrift/carengine.cpp \
+  src/vdrift/carwheel.cpp \
   --no-entry \
   -s WASM=1 \
   -s MODULARIZE=1 \
   -s EXPORT_NAME=createFayawoPhysics \
   -s ENVIRONMENT=web \
   -s ALLOW_MEMORY_GROWTH=1 \
-  -s EXPORTED_FUNCTIONS='["_fayawo_brake_torque","_fayawo_aero_drag","_fayawo_vector_length","_fayawo_clutch_torque","_fayawo_gearbox_torque","_fayawo_clutch_speed","_fayawo_physics_abi_version"]' \
+  -s EXPORTED_FUNCTIONS='["_fayawo_brake_torque","_fayawo_aero_drag","_fayawo_vector_length","_fayawo_clutch_torque","_fayawo_gearbox_torque","_fayawo_clutch_speed","_fayawo_engine_torque","_fayawo_wheel_rolling_resistance","_fayawo_wheel_inertia","_fayawo_physics_abi_version"]' \
   -o site/physics.js
 echo "WebAssembly physics module built into site/"
