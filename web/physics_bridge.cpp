@@ -5,6 +5,8 @@
 #include "mathvector.h"
 #include "carclutch.h"
 #include "cartransmission.h"
+#include "carengine.h"
+#include "carwheel.h"
 #include <cmath>
 #include <algorithm>
 
@@ -60,5 +62,30 @@ double fayawo_clutch_speed(int gear,double shaft_rads) {
     return transmission.GetClutchSpeed(shaft_rads);
 }
 
-int fayawo_physics_abi_version() { return 2; }
+// Original CARENGINE torque curve, crankshaft and friction implementation.
+double fayawo_engine_torque(double throttle, double rpm) {
+    CARENGINE engine;
+    std::vector<std::pair<Dbl,Dbl>> curve = {
+        {1000.0, 200.0}, {4000.0, 250.0}, {7800.0, 100.0}
+    };
+    engine.SetTorqueCurve(4000.0, curve);
+    engine.StartEngine();
+    engine.SetAngularVelocity(std::max(0.0, rpm) * PI_d / 30.0);
+    engine.SetThrottle(std::clamp(throttle, 0.0, 1.0));
+    engine.ComputeForces();
+    return engine.GetTorque();
+}
+
+// Original CARWHEEL rolling resistance and rotational inertia model.
+double fayawo_wheel_rolling_resistance(double speed, double surface_multiplier) {
+    CARWHEEL wheel;
+    return wheel.GetRollingResistance(speed, std::max(0.0, surface_multiplier));
+}
+
+double fayawo_wheel_inertia() {
+    CARWHEEL wheel;
+    return wheel.GetInertia();
+}
+
+int fayawo_physics_abi_version() { return 3; }
 }
