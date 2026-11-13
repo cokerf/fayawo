@@ -16,13 +16,14 @@ em++ -std=c++17 -O2 -DFAYAWO_WEB \
   src/vdrift/cartransmission.cpp \
   src/vdrift/carengine.cpp \
   src/vdrift/carwheel.cpp \
+  src/vdrift/carsuspension.cpp \
   --no-entry \
   -s WASM=1 \
   -s MODULARIZE=1 \
   -s EXPORT_NAME=createFayawoPhysics \
   -s ENVIRONMENT=web \
   -s ALLOW_MEMORY_GROWTH=1 \
-  -s EXPORTED_FUNCTIONS='["_fayawo_brake_torque","_fayawo_aero_drag","_fayawo_vector_length","_fayawo_clutch_torque","_fayawo_gearbox_torque","_fayawo_clutch_speed","_fayawo_engine_torque","_fayawo_wheel_rolling_resistance","_fayawo_wheel_inertia","_fayawo_physics_abi_version"]' \
+  -s EXPORTED_FUNCTIONS='["_fayawo_brake_torque","_fayawo_aero_drag","_fayawo_vector_length","_fayawo_clutch_torque","_fayawo_gearbox_torque","_fayawo_clutch_speed","_fayawo_engine_torque","_fayawo_wheel_rolling_resistance","_fayawo_wheel_inertia","_fayawo_suspension_force","_fayawo_suspension_step","_fayawo_physics_abi_version"]' \
   -o site/physics.js
 python3 web/prepare-assets.py
 echo "WebAssembly physics module and original car configs built into site/"
