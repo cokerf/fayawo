@@ -20,12 +20,16 @@ extern "C" double fayawo_suspension_step(double,double);
 extern "C" int fayawo_car_config_load(const char*);
 extern "C" double fayawo_car_config_number(const char*,double);
 extern "C" int fayawo_car_config_exists(const char*);
+extern "C" double fayawo_selected_gearbox_torque(int,double);
+extern "C" double fayawo_selected_brake_torque(double);
+extern "C" double fayawo_selected_suspension_force(double,double);
+extern "C" double fayawo_selected_engine_torque(double,double);
 
 static bool near(double a, double b, double tol=1e-6) {
   return std::abs(a-b)<tol;
 }
 int main() {
-    assert(fayawo_physics_abi_version()==5);
+    assert(fayawo_physics_abi_version()==6);
     assert(near(fayawo_vector_length(3,4,0),5));
     assert(near(fayawo_brake_torque(0,0,0),0));
     assert(near(fayawo_brake_torque(1,0,0),3066));
@@ -57,5 +61,10 @@ int main() {
     assert(near(fayawo_car_config_number("transmission.gear-ratio-1",0),2.909,1e-4));
     assert(near(fayawo_car_config_number("suspension-front.travel",0),0.32,1e-4));
     assert(near(fayawo_car_config_number("missing.parameter",27),27));
+    assert(near(fayawo_selected_gearbox_torque(1,100),290.9,1e-4));
+    assert(near(fayawo_selected_brake_torque(1),2895.75,1e-3));
+    assert(near(fayawo_selected_suspension_force(0.1,0),-10000,1e-3));
+    assert(std::isfinite(fayawo_selected_engine_torque(1,4000)));
+    assert(fayawo_selected_engine_torque(1,4000)>0);
     std::cout << "Original VDrift configs, suspension, engine, wheel and driveline smoke tests passed\n";
 }
