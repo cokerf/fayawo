@@ -47,6 +47,16 @@ The browser build also copies `web/tire-plot.js` for interactive diagnostic curv
 
 This is deliberately an isolated integration probe. **Fayawo's own `CARDYNAMICS` vehicle chassis, wheel contacts, tyres and terrain are not yet wired to Bullet**; it is not a playable stage. The native Bullet physics dependency is compiled rather than reimplemented in JS.
 
+## Original CARDYNAMICS rigid-body dependency
+
+`web/original_rigidbody.cpp` now instantiates and steps **the original `src/vdrift/rigidbody.h` RIGIDBODY class**. Its LINEARFRAME and ROTATIONALFRAME handle momentum, gravity, positional integration, angular momentum and yaw torque, just as in the source game. The test mass is derived from the selected original `.car` values (engine, driver, wheels, mass particles and declared fuel density). A simplified diagonal inertia estimate is used at this stage, **not** the full game's mass-particle inertia tensor.
+
+The WebAssembly browser diagnostic uses the original class through C ABI functions and shows free-body position and velocity after force/torque application. **The probe deliberately has no Bullet collision, wheel contacts, suspension attachment or ground constraint**, so its height falls below zero with sufficient simulated time. Those systems must be coupled through the original `CARDYNAMICS` to make the car drivable. No replacement game or fake physics engine is provided.
+
+## Current CI restriction
+
+GitHub Actions workflow run [#79](https://github.com/cokerf/fayawo/actions/runs/43515477989) reported that both `wasm` and `native-smoke` jobs **never started because of a GitHub account billing lock**. Those red checks are **not** evidence of failed compilation or failing tests, and the native unit-test executable has not been run by Actions. The owner must resolve the GitHub billing/account issue to restore workflow execution. In the meantime, Netlify builds the actual Emscripten WASM modules and branch previews are browser-tested before merging.
+
 ## Important next milestones
 1. Compile the full Bullet-coupled `CARDYNAMICS` and surrounding original simulation as WebAssembly, replacing Ogre-bound data types at the boundary.
 2. Make existing asset paths and configuration portable; add original cars, tire configs and track assets to a streaming/preloaded filesystem.

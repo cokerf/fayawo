@@ -27,6 +27,14 @@ extern "C" double fayawo_selected_engine_torque(double,double);
 extern "C" int fayawo_tire_config_load(const char*);
 extern "C" double fayawo_tire_longitudinal_force(double,double);
 extern "C" double fayawo_tire_lateral_force(double,double);
+extern "C" double fayawo_original_vehicle_mass();
+extern "C" int fayawo_original_body_reset(double,double);
+extern "C" int fayawo_original_body_step(double,double,double);
+extern "C" double fayawo_original_body_x();
+extern "C" double fayawo_original_body_z();
+extern "C" double fayawo_original_body_vx();
+extern "C" double fayawo_original_body_vz();
+extern "C" double fayawo_original_body_yaw_rate();
 
 static bool near(double a, double b, double tol=1e-6) {
   return std::abs(a-b)<tol;
@@ -69,6 +77,18 @@ int main() {
     assert(near(fayawo_selected_suspension_force(0.1,0),-10000,1e-3));
     assert(std::isfinite(fayawo_selected_engine_torque(1,4000)));
     assert(fayawo_selected_engine_torque(1,4000)>0);
+    assert(fayawo_original_vehicle_mass()>1100);
+    assert(fayawo_original_body_reset(fayawo_original_vehicle_mass(),10)==1);
+    for(int i=0;i<120;i++)assert(fayawo_original_body_step(1.0/120.0,0,0)==1);
+    assert(near(fayawo_original_body_z(),10-4.905,0.08));
+    assert(near(fayawo_original_body_vz(),-9.81,0.08));
+    assert(near(fayawo_original_body_x(),0));
+    assert(near(fayawo_original_body_yaw_rate(),0));
+    assert(fayawo_original_body_reset(1000,0)==1);
+    for(int i=0;i<120;i++)assert(fayawo_original_body_step(1.0/120.0,1000,100)==1);
+    assert(fayawo_original_body_x()>0.4);
+    assert(fayawo_original_body_vx()>0.9);
+    assert(fayawo_original_body_yaw_rate()>0);
     std::ifstream tirefile("data/carsim/normal/tires/asphalt.tire");
     assert(tirefile.good());
     std::ostringstream tirebuffer;
