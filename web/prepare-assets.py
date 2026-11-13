@@ -28,9 +28,6 @@ manifest = {
     "count": len(entries),
     "cars": entries,
 }
-(OUTPUT.parent / "manifest.json").write_text(
-    json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
-)
 TIRES = ROOT / "data" / "carsim" / "normal" / "tires"
 TIRE_OUTPUT = OUTPUT.parent / "tires"
 TIRE_OUTPUT.mkdir(parents=True, exist_ok=True)
@@ -39,7 +36,7 @@ for tire in sorted(TIRES.glob("*.tire")):
     (TIRE_OUTPUT / tire.name).write_bytes(tire.read_bytes())
     tire_names.append(tire.name)
 manifest["tires"] = tire_names
-(OUTPUT.parent / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\\n", encoding="utf-8")
+(OUTPUT.parent / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 if not tire_names:
     raise SystemExit("No original Fayawo tire files found")
 if not entries:
