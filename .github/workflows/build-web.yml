@@ -5,6 +5,8 @@ on:
     paths:
       - "web/**"
       - "src/vdrift/carbrake.cpp"
+      - "src/vdrift/carclutch.cpp"
+      - "src/vdrift/cartransmission.cpp"
       - "src/vdrift/caraero.cpp"
       - "src/vdrift/carbrake.h"
       - "src/vdrift/caraero.h"
