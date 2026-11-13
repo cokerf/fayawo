@@ -18,6 +18,6 @@ em++ -std=c++17 -O2 -DFAYAWO_WEB \
   -s EXPORT_NAME=createFayawoPhysics \
   -s ENVIRONMENT=web \
   -s ALLOW_MEMORY_GROWTH=1 \
-  -s EXPORTED_FUNCTIONS='["_fayawo_brake_torque","_fayawo_aero_drag","_fayawo_vector_length","_fayawo_physics_abi_version"]' \
+  -s EXPORTED_FUNCTIONS='["_fayawo_brake_torque","_fayawo_aero_drag","_fayawo_vector_length","_fayawo_clutch_torque","_fayawo_gearbox_torque","_fayawo_clutch_speed","_fayawo_physics_abi_version"]' \
   -o site/physics.js
 echo "WebAssembly physics module built into site/"
