@@ -1,7 +1,7 @@
 name: Build Fayawo WebAssembly physics milestone
 on:
   push:
-    branches: [main, feat/web-tire-physics]
+    branches: [main, feat/web-bullet-dynamics]
     paths:
       - "web/**"
       - "src/vdrift/carbrake.cpp"
@@ -12,6 +12,7 @@ on:
       - "src/vdrift/carwheel.cpp"
       - "src/vdrift/carsuspension.cpp"
       - "src/vdrift/configfile.cpp"
+      - "web/bullet_probe.cpp"
       - "src/vdrift/cartire.cpp"
       - "src/vdrift/cartire.h"
       - "src/vdrift/configfile.h"
@@ -36,7 +37,7 @@ jobs:
       - name: Build real VDrift C++ as WebAssembly
         run: bash web/build.sh
       - name: Verify browser artifacts
-        run: test -s site/index.html && test -s site/tire-plot.js && test -s site/physics.js && test -s site/physics.wasm && test -s site/assets/manifest.json && test -s site/assets/tires/asphalt.tire && test -s site/assets/cars/ES.car
+        run: test -s site/bullet.js && test -s site/bullet.wasm && test -s site/index.html && test -s site/tire-plot.js && test -s site/physics.js && test -s site/physics.wasm && test -s site/assets/manifest.json && test -s site/assets/tires/asphalt.tire && test -s site/assets/cars/ES.car
       - uses: actions/upload-artifact@v4
         with:
           name: fayawo-browser-wasm-milestone
