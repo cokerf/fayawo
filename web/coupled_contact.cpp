@@ -133,6 +133,7 @@ int fayawo_contact_reset(){
     btRigidBody::btRigidBodyConstructionInfo info(mass,chassisMotion.get(),chassisShape.get(),inertia);
     chassis=std::make_unique<btRigidBody>(info);
     chassis->setActivationState(DISABLE_DEACTIVATION);
+    chassis->setDamping(0.12f,0.28f);
     world->addRigidBody(chassis.get());
     lastNormal=lastTraction=0;lastContacts=0;
     return 1;
@@ -160,7 +161,10 @@ int fayawo_contact_step(double dt,double throttle,double steering){
         const double towardGround=pointVelocity.dot(down);
         // The original CARSUSPENSION GetForce returns a negative force
         // for positive spring compression. Negate to obtain upward reaction.
-        const double force=std::clamp(-springs[i].GetForce(compression,-towardGround),0.0,60000.0);
+        // Preserve original CARSUSPENSION calculation; cap extreme transients
+        // to a physically plausible peak wheel load for this simple probe.
+        const double loadCap=std::max(3000.0,mass*9.81/4.0*2.5);
+        const double force=std::clamp(-springs[i].GetForce(compression,-towardGround),0.0,loadCap);
         if(force<=0)continue;
         const btVector3 up=-down;
         chassis->applyForce(up*btScalar(force),relative);
@@ -168,9 +172,9 @@ int fayawo_contact_step(double dt,double throttle,double steering){
         if(throttle>0){
             Dbl maxforce=0;
             // Original CARTIRE Pacejka longitudinal response at wheel load (kN).
-            const double tireForce=tire.Pacejka_Fx(throttle*.09,force*.001,1.0,maxforce);
+            const double tireForce=tire.Pacejka_Fx(throttle*.035,force*.001,1.0,maxforce);
             const btVector3 forward=transform.getBasis()*btVector3(0,0,1);
-            const double drive=std::clamp(std::abs(tireForce),0.0,force*2.0);
+            const double drive=std::clamp(std::abs(tireForce),0.0,force*1.25);
             chassis->applyForce(forward*btScalar(drive),relative);
             lastTraction+=drive;
         }
