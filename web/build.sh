@@ -11,6 +11,7 @@ cp web/tire-plot.js site/tire-plot.js
 em++ -std=c++17 -O2 -DFAYAWO_WEB \
   -I src/vdrift \
   web/physics_bridge.cpp \
+  web/original_rigidbody.cpp \
   src/vdrift/carbrake.cpp \
   src/vdrift/caraero.cpp \
   src/vdrift/carclutch.cpp \
@@ -27,7 +28,7 @@ em++ -std=c++17 -O2 -DFAYAWO_WEB \
   -s ENVIRONMENT=web \
   -s EXPORTED_RUNTIME_METHODS='["cwrap"]' \
   -s ALLOW_MEMORY_GROWTH=1 \
-  -s EXPORTED_FUNCTIONS='["_fayawo_brake_torque","_fayawo_aero_drag","_fayawo_vector_length","_fayawo_clutch_torque","_fayawo_gearbox_torque","_fayawo_clutch_speed","_fayawo_engine_torque","_fayawo_wheel_rolling_resistance","_fayawo_wheel_inertia","_fayawo_suspension_force","_fayawo_suspension_step","_fayawo_car_config_load","_fayawo_car_config_number","_fayawo_car_config_exists","_fayawo_selected_gearbox_torque","_fayawo_selected_brake_torque","_fayawo_selected_suspension_force","_fayawo_selected_engine_torque","_fayawo_tire_config_load","_fayawo_tire_longitudinal_force","_fayawo_tire_lateral_force","_fayawo_physics_abi_version"]' \
+  -s EXPORTED_FUNCTIONS='["_fayawo_brake_torque","_fayawo_aero_drag","_fayawo_vector_length","_fayawo_clutch_torque","_fayawo_gearbox_torque","_fayawo_clutch_speed","_fayawo_engine_torque","_fayawo_wheel_rolling_resistance","_fayawo_wheel_inertia","_fayawo_suspension_force","_fayawo_suspension_step","_fayawo_car_config_load","_fayawo_car_config_number","_fayawo_car_config_exists","_fayawo_selected_gearbox_torque","_fayawo_selected_brake_torque","_fayawo_selected_suspension_force","_fayawo_selected_engine_torque","_fayawo_tire_config_load","_fayawo_tire_longitudinal_force","_fayawo_tire_lateral_force","_fayawo_original_vehicle_mass","_fayawo_original_body_reset","_fayawo_original_body_step","_fayawo_original_body_x","_fayawo_original_body_z","_fayawo_original_body_vx","_fayawo_original_body_vz","_fayawo_original_body_yaw_rate","_fayawo_physics_abi_version"]' \
   -o site/physics.js
 # The same Bullet C++ dependency used by the native game, compiled for WASM.
 em++ -std=c++17 -O2 -sUSE_BULLET=1 --no-entry \
