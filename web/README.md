@@ -3,10 +3,10 @@
 This branch begins a source-level port of the C++ Stunt Rally 3 game.
 
 ## What is already real
-- The code in `src/vdrift/carbrake.cpp`, `src/vdrift/caraero.cpp`, `src/vdrift/carclutch.cpp`, `src/vdrift/cartransmission.cpp` and `src/vdrift/mathvector.h` is compiled from the original repository, not rewritten in JavaScript.
+- The code in `src/vdrift/carbrake.cpp`, `src/vdrift/caraero.cpp`, `src/vdrift/carclutch.cpp`, `src/vdrift/cartransmission.cpp`, `src/vdrift/carengine.cpp`, `src/vdrift/carwheel.cpp` and the original vector/rotational-frame headers is compiled from the original repository, not rewritten in JavaScript.
 - `physics_bridge.cpp` is a narrow C ABI exposing methods from those original physics classes.
-- Only debug-print and native precompiled-header dependencies are conditionally excluded from the four original source files for `FAYAWO_WEB`.
-- Native smoke tests assert numerical results for brakes, drag, clutch, gears and vectors (run in CI; inspect the workflow result before treating them as passed).
+- Only desktop precompiled-header and debug-print dependencies are conditionally excluded from the six original implementation files for `FAYAWO_WEB`.
+- Native smoke tests assert numerical results for engine torque, wheel resistance, brakes, drag, clutch, gears and vectors (run in CI; inspect the workflow result before treating them as passed).
 - `build.sh` compiles those original files to `physics.wasm` and the Emscripten JS loader. The `site/index.html` is a diagnostic page, **not** a playable game.
 
 ## Build locally
@@ -24,6 +24,8 @@ The GitHub Actions workflow also builds artifacts and runs a native smoke test. 
 ## Verification status
 
 Code has been committed, but a successful Emscripten build or browser run has **not yet been confirmed**. Consult the PR Checks tab and the `Build Fayawo WebAssembly physics milestone` workflow. This is not a playable game or a finished port.
+
+The asset staging command copies the original `data/carsim/normal/cars/*.car` vehicle configuration files into `site/assets/cars/`, plus a JSON manifest. This does **not** yet parse the full car configurations or render their meshes.
 
 ## Important next milestones
 1. Compile the full Bullet-coupled `CARDYNAMICS` and surrounding original simulation as WebAssembly, replacing Ogre-bound data types at the boundary.
