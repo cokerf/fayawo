@@ -1,14 +1,20 @@
+#ifndef FAYAWO_WEB
 #include "pch.h"
+#endif
 #include "caraero.h"
+#ifndef FAYAWO_WEB
 #include "Def_Str.h"
+#endif
 
 
+#ifndef FAYAWO_WEB
 void CARAERO::DebugPrint(std::ostream & out) const
 {
 	out << "---" << std::endl;
 	out << "Drag " << fToStr(drag_vector[0], 0,5) <<" "<< fToStr(drag_vector[1], 0,4) <<" "<< fToStr(drag_vector[2], 0,5) << std::endl;
 	out << "Lift " << fToStr(lift_vector[0], 0,5) <<" "<< fToStr(lift_vector[1], 0,4) <<" "<< fToStr(lift_vector[2], 0,5) << std::endl;
 }
+#endif
 
 MATHVECTOR<Dbl,3> CARAERO::GetForce(const MATHVECTOR<Dbl,3> & bodyspace_wind_vector, bool updStats) const
 {
