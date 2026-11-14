@@ -63,6 +63,12 @@ The original `src/vdrift/cardifferential.cpp` and `CARDIFFERENTIAL` class are in
 
 This is a source-level driveline integration milestone, not a complete `CARDYNAMICS` loop. The actual wheel contacts, drivetrain timing, gear shifts and collision integration still need to be coupled with Bullet.
 
+## First combined Bullet wheel-contact milestone
+
+`web/coupled_contact.cpp` builds the **original** VDrift `CONFIGFILE`, `CARSUSPENSION`, and `CARTIRE` classes into the **same** WebAssembly module as Bullet. The four wheel positions, mass, spring constants, damping coefficients, spring travel and tyre coefficients come from actual selected `.car` and `.tire` files. Per-wheel Bullet raycasts sample the ground, original VDrift suspension calculates normal forces, original Pacejka equations calculate longitudinal grip, and both forces are applied to a live Bullet chassis. The browser `web/contact-ui.js` shows resulting motion and contact forces.
+
+**Important limitation:** this is a first vehicle-contact proof with simplified straight-line traction and yaw torque on a flat surface. It is **not** Fayawo's complete `CARDYNAMICS` class, wheel angular momentum/gear shifting, detailed contact setup, original 3D vehicles or playable tracks. Separate existing physics diagnostics remain unchanged.
+
 ## Important next milestones
 1. Compile the full Bullet-coupled `CARDYNAMICS` and surrounding original simulation as WebAssembly, replacing Ogre-bound data types at the boundary.
 2. Make existing asset paths and configuration portable; add original cars, tire configs and track assets to a streaming/preloaded filesystem.
